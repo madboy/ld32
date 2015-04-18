@@ -1,5 +1,6 @@
 require("level1")
 require("level2")
+require("level3")
 pw = 25
 ph = 25
 
@@ -31,13 +32,17 @@ exit = {}
 player = {}
 speed = 0
 colorSpeed = 0 -- this one is very dependant on the colors we use for the ground
-once = true
+decay = 0
 
+local originalSpeed = {speed=0, colorSpeed=0}
 local messages = {"Level clear!", "Color attunement error!"}
 
 function love.keypressed(key)
     if key == "escape" then
         love.event.quit()
+    end
+    if key == "r" then
+        level.init(pw, ph)
     end
 end
 
@@ -63,9 +68,22 @@ function love.update(dt)
         end
     end
     if updateColor then
-        if ground[player.tile].name == 'white' and once then
-            colorSpeed = colorSpeed * 0.3
-            once = false
+        if ground[player.tile].name == 'white' and
+            decay > 0 then
+            colorSpeed = colorSpeed * 0.5
+            decay = decay - 1
+        end
+        if ground[player.tile].name == 'red-violet' and
+            decay > 0 then
+            speed = speed * 2
+            decay = decay - 1
+        end
+        if decay <= 0 then
+            decay = decay - 1
+        end
+        if decay < -250 then
+            speed = originalSpeed.speed
+            colorSpeed = originalSpeed.colorSpeed
         end
         player.r = mix(player.r, ground[player.tile].r, dt)
         player.g = mix(player.g, ground[player.tile].g, dt)
@@ -74,7 +92,10 @@ function love.update(dt)
 end
 
 function love.load()
-    level2.init(pw, ph)
+    level = level3
+    level.init(pw, ph)
+    originalSpeed.speed = speed
+    originalSpeed.colorSpeed = colorSpeed
     love.graphics.setBackgroundColor(115,115,115)
 end
 

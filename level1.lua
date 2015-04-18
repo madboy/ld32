@@ -1,6 +1,6 @@
 level1 = {}
 
-function level1.init()
+function level1.init(pw, ph)
     tileSize = 60
     grid = 5
     origo = {x=100, y=100}
@@ -30,7 +30,7 @@ function level1.init()
     player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, tile=2}
     speed = 128
     colorSpeed = 25
-    once = true
+    decay = 0
 end
 
 return level1

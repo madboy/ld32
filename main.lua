@@ -4,24 +4,26 @@ local width = love.graphics.getWidth()
 local pw = 25
 local ph = 25
 
-local ground = {blue={name='blue', r=0, g=0, b=255},
-                red={name='red', r=255, g=0, b=0},
-                green={name='green', r=0, g=255, b=0}}
+local ground = {[1]={name='blue', r=0, g=0, b=255},
+                [2]={name='red', r=255, g=0, b=0},
+                [3]={name='green', r=0, g=255, b=0},
+                [0]={name="exit", r=115, g=155, b=115}}
 
 local tileSize = 60
 local grid = 5
 local grids = {[1]=0, [2]=tileSize, [3]=2*tileSize, [4]=3*tileSize, [0]=4*tileSize, [5]=4*tileSize}
-local tiles = {ground.blue, ground.blue, ground.blue, ground.blue, ground.blue,
-               ground.blue, ground.blue, ground.blue, ground.blue, ground.blue,
-               ground.red, ground.red, ground.green, ground.red, ground.red,
-               ground.red, ground.red, ground.red, ground.red, ground.red,
-               ground.red, ground.red, ground.red, ground.red, ground.red}
+
+local tiles = {1,1,1,1,1,
+               1,1,1,1,1,
+               2,2,0,2,2,
+               2,2,2,2,2,
+               2,2,2,2,2}
 
 local start = {x=grids[3]+tileSize*0.5-pw*0.5, y=height-ph}
 
-local player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, area=ground.red}
+local player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, area=2}
 
-local exit = {x = grids[3], y = grids[1], w = tileSize, h = tileSize*0.5, r=ground.green.r, g=ground.green.g, b=ground.green.b}
+local exit = {x = grids[3], y = grids[1], w = tileSize, h = tileSize*0.5, r=ground[0].r, g=ground[0].g, b=ground[0].b}
 local messages = {"Level clear!", "Color attunement error!"}
 
 local areas = {{x=0, y=0, w=width, h=height*0.5, r=115, g=115, b=155},
@@ -58,9 +60,9 @@ function love.update(dt)
         end
     end
     if updateColor then
-        player.r = mix(player.r, player.area.r, dt)
-        player.g = mix(player.g, player.area.g, dt)
-        player.b = mix(player.b, player.area.b, dt)
+        player.r = mix(player.r, ground[player.area].r, dt)
+        player.g = mix(player.g, ground[player.area].g, dt)
+        player.b = mix(player.b, ground[player.area].b, dt)
     end
 end
 
@@ -124,7 +126,7 @@ function love.draw()
     local area = 1
 
     for i, t in ipairs(tiles) do
-        love.graphics.setColor(t.r, t.g, t.b)
+        love.graphics.setColor(ground[t].r, ground[t].g, ground[t].b)
         local x, y = getTilePosition(i)
         love.graphics.rectangle("fill", x, y, 60, 60)
 

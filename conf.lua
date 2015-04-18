@@ -1,0 +1,11 @@
+function love.conf(t)
+    t.window = t.window or t.screen
+
+    t.title = "ld32"
+    t.window.height = 800
+    t.window.width = 600
+
+    t.console = true
+
+    t.screen = t.screen or t.window
+end

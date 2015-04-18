@@ -1,6 +1,6 @@
-level1 = {}
+level2 = {}
 
-function level1.init()
+function level2.init()
     tileSize = 60
     grid = 5
     origo = {x=100, y=100}
@@ -20,18 +20,17 @@ function level1.init()
               [5]=origo.y + 4*tileSize}
 
     tiles = {2,2,2,2,2,
-             2,2,0,2,2,
              2,2,2,2,2,
+             2,14,0,2,2,
              2,2,2,2,2,
              2,2,2,2,2}
 
     start = {x=gridsx[3]+tileSize*0.5-pw*0.5, y=height-ph}
-    exit = {x = gridsx[3], y = gridsy[1], w = tileSize, h = tileSize*0.5, r=ground[0].r, g=ground[0].g, b=ground[0].b}
+    exit = {x = gridsx[2], y = gridsy[1], w = tileSize, h = tileSize*0.5, r=ground[0].r, g=ground[0].g, b=ground[0].b}
     player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, tile=2}
     speed = 128
-    colorSpeed = 25
+    colorSpeed = 45
     once = true
 end
 
-return level1
-
+return level2

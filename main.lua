@@ -1,4 +1,5 @@
 require("level1")
+require("level2")
 pw = 25
 ph = 25
 
@@ -30,6 +31,7 @@ exit = {}
 player = {}
 speed = 0
 colorSpeed = 0 -- this one is very dependant on the colors we use for the ground
+once = true
 
 local messages = {"Level clear!", "Color attunement error!"}
 
@@ -61,6 +63,10 @@ function love.update(dt)
         end
     end
     if updateColor then
+        if ground[player.tile].name == 'white' and once then
+            colorSpeed = colorSpeed * 0.3
+            once = false
+        end
         player.r = mix(player.r, ground[player.tile].r, dt)
         player.g = mix(player.g, ground[player.tile].g, dt)
         player.b = mix(player.b, ground[player.tile].b, dt)
@@ -68,7 +74,7 @@ function love.update(dt)
 end
 
 function love.load()
-    level1.init(pw, ph)
+    level2.init(pw, ph)
     love.graphics.setBackgroundColor(115,115,115)
 end
 

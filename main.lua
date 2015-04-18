@@ -4,11 +4,24 @@ local width = love.graphics.getWidth()
 local pw = 25
 local ph = 25
 
-local start = {x=width*0.5, y=height-ph}
+local ground = {blue={name='blue', r=0, g=0, b=255},
+                red={name='red', r=255, g=0, b=0},
+                green={name='green', r=0, g=255, b=0}}
 
-local player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, area=1}
+local tileSize = 60
+local grid = 5
+local grids = {[1]=0, [2]=tileSize, [3]=2*tileSize, [4]=3*tileSize, [0]=4*tileSize, [5]=4*tileSize}
+local tiles = {ground.blue, ground.blue, ground.blue, ground.blue, ground.blue,
+               ground.blue, ground.blue, ground.blue, ground.blue, ground.blue,
+               ground.red, ground.red, ground.green, ground.red, ground.red,
+               ground.red, ground.red, ground.red, ground.red, ground.red,
+               ground.red, ground.red, ground.red, ground.red, ground.red}
 
-local exit = {x=width*0.5, y=0, w=player.w*2, h=player.h*1.3, r=115, g=155, b=115}
+local start = {x=grids[3]+tileSize*0.5-pw*0.5, y=height-ph}
+
+local player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, area=ground.red}
+
+local exit = {x = grids[3], y = grids[1], w = tileSize, h = tileSize*0.5, r=ground.green.r, g=ground.green.g, b=ground.green.b}
 local messages = {"Level clear!", "Color attunement error!"}
 
 local areas = {{x=0, y=0, w=width, h=height*0.5, r=115, g=115, b=155},
@@ -45,9 +58,9 @@ function love.update(dt)
         end
     end
     if updateColor then
-        player.r = mix(player.r, areas[player.area].r, dt)
-        player.g = mix(player.g, areas[player.area].g, dt)
-        player.b = mix(player.b, areas[player.area].b, dt)
+        player.r = mix(player.r, player.area.r, dt)
+        player.g = mix(player.g, player.area.g, dt)
+        player.b = mix(player.b, player.area.b, dt)
     end
 end
 
@@ -66,6 +79,12 @@ function inArea(a)
     return (player.x >= a.x) and (player.y >= a.y) and
             ((player.x + player.w) < (a.x + a.w)) and
             ((player.y + player.h) < (a.y + a.h))
+end
+
+function inTile(x, y)
+    return (player.x >= x) and (player.y >= y) and
+            ((player.x + player.w) < (x + tileSize)) and
+            ((player.y + player.h) < (y + tileSize))
 end
 
 function withinLimit(c1, c2)
@@ -95,29 +114,33 @@ function canExit()
     return false
 end
 
+function getTilePosition(i)
+    xpos = i % grid
+    ypos = math.ceil(i/grid)
+    return grids[xpos], grids[ypos]
+end
+
 function love.draw()
     local area = 1
 
-    for i, a in ipairs(areas) do
-        love.graphics.setColor(a.r, a.g, a.b)
-        love.graphics.rectangle("fill", a.x, a.y, a.w, a.h)
+    for i, t in ipairs(tiles) do
+        love.graphics.setColor(t.r, t.g, t.b)
+        local x, y = getTilePosition(i)
+        love.graphics.rectangle("fill", x, y, 60, 60)
 
-        if inArea(a) then
-            player.area = i
+        if inTile(x, y) then
+            player.area = t
         end
     end
 
     love.graphics.setColor(exit.r, exit.g, exit.b)
     love.graphics.rectangle("fill", exit.x, exit.y, exit.w, exit.h)
 
-
     love.graphics.setColor(player.r, player.g, player.b)
     love.graphics.rectangle("fill", player.x, player.y, player.w, player.h)
     love.graphics.setColor(0, 0, 0)
     love.graphics.rectangle("line", player.x, player.y, player.w, player.h)
 
-    love. graphics.push()
-    love.graphics.scale(2, 2)
     local can_exit, msg = canExit()
     if can_exit then
         updateColor = false
@@ -125,5 +148,4 @@ function love.draw()
     else
         updateColor = true
     end
-    love.graphics.pop()
 end

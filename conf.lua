@@ -2,8 +2,10 @@ function love.conf(t)
     t.window = t.window or t.screen
 
     t.title = "ld32"
-    t.window.height = 800
-    t.window.width = 600
+    tileSize = 60
+    grid = 5
+    t.window.height = tileSize * grid
+    t.window.width = tileSize * grid
 
     t.console = true
 

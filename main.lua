@@ -1,10 +1,8 @@
-local height = love.graphics.getHeight()
-local width = love.graphics.getWidth()
+require("level1")
+pw = 25
+ph = 25
 
-local pw = 25
-local ph = 25
-
-local ground = {[1]={name='yellow', r=255, g=255, b=0},
+ground = {[1]={name='yellow', r=255, g=255, b=0},
                 [2]={name='yellow-orange', r=255, g=204, b=0},
                 [3]={name='orange', r=255, g=165, b=0},
                 [4]={name='orange-red', r=255, g=69, b=0},
@@ -19,21 +17,19 @@ local ground = {[1]={name='yellow', r=255, g=255, b=0},
                 [13]={name='black', r=0, g=0, b=0},
                 [14]={name='white', r=255, g=255, b=255},
                 [0]={name="exit", r=0, g=128, b=0}}
-
-local tileSize = 60
-local grid = 5
-local grids = {[1]=0, [2]=tileSize, [3]=2*tileSize, [4]=3*tileSize, [0]=4*tileSize, [5]=4*tileSize}
-
-local tiles = {2,2,2,2,2,
-               2,2,0,2,2,
-               2,2,2,2,2,
-               2,2,2,2,2,
-               2,2,2,2,2}
-
-local start = {x=grids[3]+tileSize*0.5-pw*0.5, y=height-ph}
-local exit = {x = grids[3], y = grids[1], w = tileSize, h = tileSize*0.5, r=ground[0].r, g=ground[0].g, b=ground[0].b}
-
-local player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, tile=2}
+tileSize = 0
+grid = 0
+origo = {}
+height = 0
+width = 0
+gridsx = {}
+gridsy = {}
+tiles = {}
+start = {}
+exit = {}
+player = {}
+speed = 0
+colorSpeed = 0 -- this one is very dependant on the colors we use for the ground
 
 local messages = {"Level clear!", "Color attunement error!"}
 
@@ -43,11 +39,9 @@ function love.keypressed(key)
     end
 end
 
-local speed = 128
-local colorSpeed = 20 -- this one is very dependant on the colors we use for the ground
 function love.update(dt)
     if love.keyboard.isDown("up") then
-        if (player.y - (speed * dt)) > 0 then
+        if (player.y - (speed * dt)) > origo.y then
             player.y = player.y - (speed * dt)
         end
     end
@@ -62,7 +56,7 @@ function love.update(dt)
         end
     end
     if love.keyboard.isDown("left") then
-        if (player.x - (speed * dt)) > 0 then
+        if (player.x - (speed * dt)) > origo.x then
             player.x = player.x - (speed * dt)
         end
     end
@@ -74,6 +68,8 @@ function love.update(dt)
 end
 
 function love.load()
+    level1.init(pw, ph)
+    love.graphics.setBackgroundColor(115,115,115)
 end
 
 function mix(c1, c2, rate)
@@ -126,7 +122,7 @@ end
 function getTilePosition(i)
     xpos = i % grid
     ypos = math.ceil(i/grid)
-    return grids[xpos], grids[ypos]
+    return gridsx[xpos], gridsy[ypos]
 end
 
 function love.draw()

@@ -31,6 +31,7 @@ function level2.init()
     speed = 128
     colorSpeed = 45
     decay = 2
+    paused = false
 end
 
 return level2

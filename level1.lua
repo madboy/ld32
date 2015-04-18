@@ -31,6 +31,7 @@ function level1.init(pw, ph)
     speed = 128
     colorSpeed = 25
     decay = 0
+    paused = false
 end
 
 return level1

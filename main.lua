@@ -1,6 +1,7 @@
-require("level1")
-require("level2")
-require("level3")
+--require("level1")
+--require("level2")
+--require("level3")
+require("levels")
 pw = 25
 ph = 25
 
@@ -33,6 +34,9 @@ player = {}
 speed = 0
 colorSpeed = 0 -- this one is very dependant on the colors we use for the ground
 decay = 0
+paused = false
+
+l = 1
 
 local originalSpeed = {speed=0, colorSpeed=0}
 local messages = {"Level clear!", "Color attunement error!"}
@@ -44,9 +48,17 @@ function love.keypressed(key)
     if key == "r" then
         level.init(pw, ph)
     end
+    if key == "l" and paused then
+        level = levels[l]
+        level.init(pw, ph)
+        originalSpeed.speed = speed
+        originalSpeed.colorSpeed = colorSpeed
+    end
 end
 
 function love.update(dt)
+    if paused then return end
+
     if love.keyboard.isDown("up") then
         if (player.y - (speed * dt)) > origo.y then
             player.y = player.y - (speed * dt)
@@ -92,7 +104,7 @@ function love.update(dt)
 end
 
 function love.load()
-    level = level3
+    level = levels[l]
     level.init(pw, ph)
     originalSpeed.speed = speed
     originalSpeed.colorSpeed = colorSpeed
@@ -146,6 +158,14 @@ function canExit()
     return false
 end
 
+function nextLevel(msg)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print(string.format("%s", messages[msg]), width*0.13, height*0.2)
+    if paused then return end
+    l = l + 1
+    paused = true
+end
+
 function getTilePosition(i)
     xpos = i % grid
     ypos = math.ceil(i/grid)
@@ -179,8 +199,12 @@ function love.draw()
     local can_exit, msg = canExit()
     if can_exit then
         updateColor = false
-        love.graphics.setColor(0, 0, 0)
-        love.graphics.print(string.format("%s", messages[msg]), width*0.13, height*0.2)
+        if msg == 1 then
+            nextLevel(msg)
+        else
+            love.graphics.setColor(0, 0, 0)
+            love.graphics.print(string.format("%s", messages[msg]), width*0.13, height*0.2)
+        end
     else
         updateColor = true
     end

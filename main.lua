@@ -6,7 +6,7 @@ local ph = 25
 
 local start = {x=width*0.5, y=height-ph}
 
-local player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255}
+local player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, area=1}
 
 local exit = {x=width*0.5, y=0, w=player.w*2, h=player.h*1.3, r=115, g=155, b=115}
 local messages = {"Level clear!", "Color attunement error!"}
@@ -21,7 +21,8 @@ function love.keypressed(key)
     end
 end
 
-local speed = 32
+local speed = 128
+local colorSpeed = 20
 function love.update(dt)
     if love.keyboard.isDown("up") then
         if (player.y - (speed * dt)) > 0 then
@@ -43,16 +44,21 @@ function love.update(dt)
             player.x = player.x - (speed * dt)
         end
     end
+    if updateColor then
+        player.r = mix(player.r, areas[player.area].r, dt)
+        player.g = mix(player.g, areas[player.area].g, dt)
+        player.b = mix(player.b, areas[player.area].b, dt)
+    end
 end
 
 function love.load()
 end
 
-function mix(c1, c2)
+function mix(c1, c2, rate)
     if c1 < c2 then
-        return c1 + 0.06
+        return c1 + (rate * colorSpeed)
     else
-        return c1 - 0.06
+        return c1 - (rate * colorSpeed)
     end
 end
 
@@ -97,7 +103,7 @@ function love.draw()
         love.graphics.rectangle("fill", a.x, a.y, a.w, a.h)
 
         if inArea(a) then
-            area = i
+            player.area = i
         end
     end
 
@@ -114,11 +120,10 @@ function love.draw()
     love.graphics.scale(2, 2)
     local can_exit, msg = canExit()
     if can_exit then
+        updateColor = false
         love.graphics.print(string.format("%s", messages[msg]), width*0.13, height*0.2)
     else
-        player.r = mix(player.r, areas[area].r)
-        player.g = mix(player.g, areas[area].g)
-        player.b = mix(player.b, areas[area].b)
+        updateColor = true
     end
     love.graphics.pop()
 end

@@ -4,31 +4,38 @@ local width = love.graphics.getWidth()
 local pw = 25
 local ph = 25
 
-local ground = {[1]={name='blue', r=0, g=0, b=255},
-                [2]={name='red', r=255, g=0, b=0},
-                [3]={name='green', r=0, g=255, b=0},
-                [0]={name="exit", r=115, g=155, b=115}}
+local ground = {[1]={name='yellow', r=255, g=255, b=0},
+                [2]={name='yellow-orange', r=255, g=204, b=0},
+                [3]={name='orange', r=255, g=165, b=0},
+                [4]={name='orange-red', r=255, g=69, b=0},
+                [5]={name='red', r=255, g=0, b=0},
+                [6]={name='red-violet', r=244, g=62, b=113},
+                [7]={name='violet', r=102, g=51, b=153},
+                [8]={name='violet-blue', r=76, g=80, b=169},
+                [9]={name='blue', r=0, g=0, b=255},
+                [10]={name='blue-green', r=33, g=182, b=168},
+                [11]={name='green', r=0, g=255, b=0},
+                [12]={name='green-yellow', r=160, g=255, b=32},
+                [13]={name='black', r=0, g=0, b=0},
+                [14]={name='white', r=255, g=255, b=255},
+                [0]={name="exit", r=0, g=128, b=0}}
 
 local tileSize = 60
 local grid = 5
 local grids = {[1]=0, [2]=tileSize, [3]=2*tileSize, [4]=3*tileSize, [0]=4*tileSize, [5]=4*tileSize}
 
-local tiles = {1,1,1,1,1,
-               1,1,1,1,1,
+local tiles = {2,2,2,2,2,
                2,2,0,2,2,
+               2,2,2,2,2,
                2,2,2,2,2,
                2,2,2,2,2}
 
 local start = {x=grids[3]+tileSize*0.5-pw*0.5, y=height-ph}
-
-local player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, area=2}
-
 local exit = {x = grids[3], y = grids[1], w = tileSize, h = tileSize*0.5, r=ground[0].r, g=ground[0].g, b=ground[0].b}
-local messages = {"Level clear!", "Color attunement error!"}
 
-local areas = {{x=0, y=0, w=width, h=height*0.5, r=115, g=115, b=155},
-               {x=0, y=height*0.5, w=width, h=height*0.5, r=155, g=115, b=115},
-               {x=exit.x-player.w, y=height*0.2, w=player.w*3, h=player.h*2, r=115, g=155, b=115}}
+local player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, tile=2}
+
+local messages = {"Level clear!", "Color attunement error!"}
 
 function love.keypressed(key)
     if key == "escape" then
@@ -37,7 +44,7 @@ function love.keypressed(key)
 end
 
 local speed = 128
-local colorSpeed = 20
+local colorSpeed = 20 -- this one is very dependant on the colors we use for the ground
 function love.update(dt)
     if love.keyboard.isDown("up") then
         if (player.y - (speed * dt)) > 0 then
@@ -60,9 +67,9 @@ function love.update(dt)
         end
     end
     if updateColor then
-        player.r = mix(player.r, ground[player.area].r, dt)
-        player.g = mix(player.g, ground[player.area].g, dt)
-        player.b = mix(player.b, ground[player.area].b, dt)
+        player.r = mix(player.r, ground[player.tile].r, dt)
+        player.g = mix(player.g, ground[player.tile].g, dt)
+        player.b = mix(player.b, ground[player.tile].b, dt)
     end
 end
 
@@ -131,12 +138,15 @@ function love.draw()
         love.graphics.rectangle("fill", x, y, 60, 60)
 
         if inTile(x, y) then
-            player.area = t
+            player.tile = t
         end
     end
 
     love.graphics.setColor(exit.r, exit.g, exit.b)
     love.graphics.rectangle("fill", exit.x, exit.y, exit.w, exit.h)
+
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print("EXIT", exit.x, exit.y)
 
     love.graphics.setColor(player.r, player.g, player.b)
     love.graphics.rectangle("fill", player.x, player.y, player.w, player.h)
@@ -146,6 +156,7 @@ function love.draw()
     local can_exit, msg = canExit()
     if can_exit then
         updateColor = false
+        love.graphics.setColor(0, 0, 0)
         love.graphics.print(string.format("%s", messages[msg]), width*0.13, height*0.2)
     else
         updateColor = true

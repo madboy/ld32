@@ -11,7 +11,7 @@ local player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255}
 local exit = {x=width*0.5, y=0, w=player.w*2, h=player.h*1.3, r=115, g=155, b=115}
 local messages = {"Level clear!", "Color attunement error!"}
 
-local areas = {{x=0, y=0, w=width, h=height*0.5, r=115, g=115, b=155}, 
+local areas = {{x=0, y=0, w=width, h=height*0.5, r=115, g=115, b=155},
                {x=0, y=height*0.5, w=width, h=height*0.5, r=155, g=115, b=115},
                {x=exit.x-player.w, y=height*0.2, w=player.w*3, h=player.h*2, r=115, g=155, b=115}}
 
@@ -21,26 +21,26 @@ function love.keypressed(key)
     end
 end
 
-local speed = 0.5
+local speed = 32
 function love.update(dt)
     if love.keyboard.isDown("up") then
-        if (player.y - speed) > 0 then
-            player.y = player.y - speed
+        if (player.y - (speed * dt)) > 0 then
+            player.y = player.y - (speed * dt)
         end
     end
     if love.keyboard.isDown("down") then
-        if (player.y + player.h + speed) < height then
-            player.y = player.y + speed
+        if (player.y + player.h + (speed * dt)) < height then
+            player.y = player.y + (speed * dt)
         end
     end
     if love.keyboard.isDown("right") then
-        if (player.x + player.w + speed) < width then
-            player.x = player.x + speed
+        if (player.x + player.w + (speed * dt)) < width then
+            player.x = player.x + (speed * dt)
         end
     end
     if love.keyboard.isDown("left") then
-        if (player.x - speed) > 0 then
-            player.x = player.x - speed
+        if (player.x - (speed * dt)) > 0 then
+            player.x = player.x - (speed * dt)
         end
     end
 end
@@ -94,14 +94,14 @@ function love.draw()
 
     for i, a in ipairs(areas) do
         love.graphics.setColor(a.r, a.g, a.b)
-        love.graphics.rectangle("fill", a.x, a.y, a.w, a.h) 
+        love.graphics.rectangle("fill", a.x, a.y, a.w, a.h)
 
         if inArea(a) then
             area = i
         end
     end
 
-    love.graphics.setColor(exit.r, exit.g, exit.b) 
+    love.graphics.setColor(exit.r, exit.g, exit.b)
     love.graphics.rectangle("fill", exit.x, exit.y, exit.w, exit.h)
 
 

@@ -276,11 +276,15 @@ function love.draw()
 
         top_align = top_align + spacing
         love.graphics.setColor(ground[6].r, ground[6].g, ground[6].b)
-        love.graphics.print("last you you where shot", left_align, top_align)
+        love.graphics.print("last night you where shot", left_align, top_align)
 
         top_align = top_align + spacing
         love.graphics.setColor(ground[8].r, ground[8].g, ground[8].b)
         love.graphics.print("with a scary new weapon", left_align, top_align)
+
+        top_align = top_align + spacing
+        love.graphics.setColor(ground[10].r, ground[10].g, ground[10].b)
+        love.graphics.print("you wake up, trapped in a dungeon", left_align, top_align)
 
         top_align = top_align + spacing
         love.graphics.setColor(ground[12].r, ground[12].g, ground[12].b)

@@ -7,7 +7,7 @@ ground = {[1]={name='yellow', type='normal', r=255, g=255, b=0},
           [3]={name='orange', type='normal', r=255, g=165, b=0},
           [4]={name='orange-red', type='normal', r=255, g=69, b=0},
           [5]={name='red', type='normal', r=255, g=0, b=0},
-          [6]={name='red-violet', type='buff', r=244, g=62, b=113},
+          [6]={name='red-violet', type='buff', letter='s', r=244, g=62, b=113},
           [7]={name='violet', type='normal', r=102, g=51, b=153},
           [8]={name='violet-blue', type='normal', r=76, g=80, b=169},
           [9]={name='blue', type='normal', r=0, g=0, b=255},
@@ -15,7 +15,7 @@ ground = {[1]={name='yellow', type='normal', r=255, g=255, b=0},
           [11]={name='green', type='normal', r=0, g=255, b=0},
           [12]={name='green-yellow', type='normal', r=160, g=255, b=32},
           [13]={name='black', type='degen', r=0, g=0, b=0},
-          [14]={name='white', type='buff', r=255, g=255, b=255},
+          [14]={name='white', type='buff', letter='r', r=255, g=255, b=255},
           [15]={name='player', type='normal', r=255, g=255, b=255},
           [0]={name="exit", type='normal', r=0, g=128, b=0}}
 tileSize = 0
@@ -33,6 +33,8 @@ speed = 0
 colorSpeed = 0 -- this one is very dependant on the colors we use for the ground
 decay = 0
 paused = false
+buffActive = false
+buffIndicator = ""
 state = "title"
 
 l = 1
@@ -47,12 +49,14 @@ function love.keypressed(key)
     if state == "game" then
         if key == "r" then
             level.init(pw, ph)
+            buffActive = false
         end
         if key == "l" and paused then
             level = levels[l]
             level.init(pw, ph)
             originalSpeed.speed = speed
             originalSpeed.colorSpeed = colorSpeed
+            buffActive = false
         end
     elseif state == "title" then
         if key == "return" then
@@ -94,21 +98,26 @@ function love.update(dt)
             colorSpeed = clamp(colorSpeed * 0.5, 0, 100)
             decay = decay - (dt * decaySpeed)
             love.audio.play(resist_s)
+            buffActive = true
+            buffIndicator = "r"
         end
         if ground[player.tile].name == 'red-violet' and
             decay > 0 then
             speed = clamp(speed * 2, 0, 250)
             decay = decay - (dt * decaySpeed)
             love.audio.play(speed_s)
+            buffActive = true
+            buffIndicator = "s"
         end
         if decay <= 0 then
             decay = decay - (dt * decaySpeed)
         end
-        if decay < -300 then
+        if decay < -250 then
             decay = 5
-        elseif decay < -250 then
+        elseif decay < -200 then
             speed = originalSpeed.speed
             colorSpeed = originalSpeed.colorSpeed
+            buffActive = false
         end
         player.r = mix(player.r, ground[player.tile].r, dt)
         player.g = mix(player.g, ground[player.tile].g, dt)
@@ -191,6 +200,7 @@ function nextLevel(msg)
     if paused then return end
     l = l + 1
     paused = true
+    buffActive = false
     if l > #levels then
         state = "gameover"
     end
@@ -202,13 +212,9 @@ function getTilePosition(i)
     return gridsx[xpos], gridsy[ypos]
 end
 
-function indicateBuff(t)
-    local r, g, b = ground[t].r, ground[t].g, ground[t].b
-    local fluctuation = 25
-    r = math.random(clamp(r-fluctuation, 0, 255), clamp(r+fluctuation, 0, 255))
-    g = math.random(clamp(g-fluctuation, 0, 255), clamp(g+fluctuation, 0, 255))
-    b = math.random(clamp(b-fluctuation, 0, 255), clamp(b+fluctuation, 0, 255))
-    return r, g, b
+function indicateBuff(x, y, indicator)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print(indicator, x+5, y+5)
 end
 
 function love.draw()
@@ -222,15 +228,13 @@ function love.draw()
         love.graphics.pop()
 
         for i, t in ipairs(tiles) do
-            if ground[t].type == 'buff' and decay > 0 then
-                local r, g, b = indicateBuff(t)
-                love.graphics.setColor(r, g, b)
-            else
-                love.graphics.setColor(ground[t].r, ground[t].g, ground[t].b)
-            end
             local x, y = getTilePosition(i)
+            love.graphics.setColor(ground[t].r, ground[t].g, ground[t].b)
             love.graphics.rectangle("fill", x, y, tileSize, tileSize)
 
+            if ground[t].type == 'buff' and decay > 0 then
+                indicateBuff(x, y, ground[t].letter)
+            end
             if inTile(x, y) then
                 player.tile = t
             end
@@ -244,7 +248,12 @@ function love.draw()
 
         love.graphics.setColor(player.r, player.g, player.b)
         love.graphics.rectangle("fill", player.x, player.y, player.w, player.h)
-        love.graphics.setColor(0, 0, 0)
+        if buffActive then
+            indicateBuff(player.x, player.y, buffIndicator)
+            love.graphics.setColor(0, 115, 255)
+        else
+            love.graphics.setColor(0, 0, 0)
+        end
         love.graphics.rectangle("line", player.x, player.y, player.w, player.h)
 
         local can_exit, msg = canExit()

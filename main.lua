@@ -126,6 +126,8 @@ function love.load()
     exit_s = love.audio.newSource("assets/exit.wav", "static")
     speed_s = love.audio.newSource("assets/speed.wav", "static")
     resist_s = love.audio.newSource("assets/resist.wav", "static")
+    title_s = love.audio.newSource("assets/title.it", "stream")
+    title_s:setLooping(true)
 
     level = levels[l]
     level.init(pw, ph)
@@ -258,6 +260,7 @@ function love.draw()
             updateColor = true
         end
     elseif state == "title" then
+        love.audio.play(title_s)
         local left_align = 25
         local top_align = 20
         local spacing = 20

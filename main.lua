@@ -1,6 +1,3 @@
---require("level1")
---require("level2")
---require("level3")
 require("levels")
 pw = 25
 ph = 25
@@ -56,6 +53,10 @@ function love.keypressed(key)
     end
 end
 
+function clamp(val, lower, upper)
+    return math.max(lower, math.min(val, upper))
+end
+
 function love.update(dt)
     if paused then return end
 
@@ -82,12 +83,12 @@ function love.update(dt)
     if updateColor then
         if ground[player.tile].name == 'white' and
             decay > 0 then
-            colorSpeed = colorSpeed * 0.5
+            colorSpeed = clamp(colorSpeed * 0.5, 0, 100)
             decay = decay - 1
         end
         if ground[player.tile].name == 'red-violet' and
             decay > 0 then
-            speed = speed * 2
+            speed = clamp(speed * 2, 0, 250)
             decay = decay - 1
         end
         if decay <= 0 then
@@ -104,7 +105,7 @@ function love.update(dt)
 end
 
 function love.load()
-    level = levels[l]
+    level = levels[3]
     level.init(pw, ph)
     originalSpeed.speed = speed
     originalSpeed.colorSpeed = colorSpeed

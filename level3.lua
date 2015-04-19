@@ -23,13 +23,13 @@ function level3.init(pw, ph)
              2,2,2,2,2,
              2,2,2,2,2,
              2,2,2,2,2,
-             2,2,0,2,6}
+             2,2,0,6,2}
 
     start = {x=gridsx[3]+tileSize*0.5-pw*0.5, y=height-ph}
     exit = {x = gridsx[3], y = gridsy[1], w = tileSize, h = tileSize*0.5, r=ground[0].r, g=ground[0].g, b=ground[0].b}
     player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, tile=2}
     speed = 85
-    colorSpeed = 35
+    colorSpeed = 30
     decay = 2
     paused = false
 end

@@ -94,7 +94,9 @@ function love.update(dt)
         if decay <= 0 then
             decay = decay - 1
         end
-        if decay < -250 then
+        if decay < -500 then
+            decay = 5
+        elseif decay < -250 then
             speed = originalSpeed.speed
             colorSpeed = originalSpeed.colorSpeed
         end
@@ -105,7 +107,7 @@ function love.update(dt)
 end
 
 function love.load()
-    level = levels[3]
+    level = levels[2]
     level.init(pw, ph)
     originalSpeed.speed = speed
     originalSpeed.colorSpeed = colorSpeed
@@ -209,4 +211,5 @@ function love.draw()
     else
         updateColor = true
     end
+    love.graphics.print(decay, 10, 10)
 end

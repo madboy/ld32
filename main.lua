@@ -33,24 +33,31 @@ speed = 0
 colorSpeed = 0 -- this one is very dependant on the colors we use for the ground
 decay = 0
 paused = false
+state = "title"
 
 l = 1
 
 local originalSpeed = {speed=0, colorSpeed=0}
-local messages = {"level clear!", "color attunement error!"}
+local messages = {"level clear! press l to continue", "color attunement error!"}
 
 function love.keypressed(key)
     if key == "escape" then
         love.event.quit()
     end
-    if key == "r" then
-        level.init(pw, ph)
-    end
-    if key == "l" and paused then
-        level = levels[l]
-        level.init(pw, ph)
-        originalSpeed.speed = speed
-        originalSpeed.colorSpeed = colorSpeed
+    if state == "game" then
+        if key == "r" then
+            level.init(pw, ph)
+        end
+        if key == "l" and paused then
+            level = levels[l]
+            level.init(pw, ph)
+            originalSpeed.speed = speed
+            originalSpeed.colorSpeed = colorSpeed
+        end
+    elseif state == "title" then
+        if key == "return" then
+            state = "game"
+        end
     end
 end
 
@@ -113,7 +120,7 @@ function love.load()
     font = love.graphics.newImageFont(game_font, "abcdefghijklmnopqrstuvwxyz,.!:;?1234567890 \"")
     love.graphics.setFont(font)
 
-    level = levels[3]
+    level = levels[l]
     level.init(pw, ph)
     originalSpeed.speed = speed
     originalSpeed.colorSpeed = colorSpeed
@@ -169,10 +176,13 @@ end
 
 function nextLevel(msg)
     love.graphics.setColor(0, 0, 0)
-    love.graphics.print(string.format("%s", messages[msg]), width*0.13, height*0.2)
+    love.graphics.print(string.format("%s", messages[msg]), origo.x, origo.y - 20)
     if paused then return end
     l = l + 1
     paused = true
+    if l > #levels then
+        state = "gameover"
+    end
 end
 
 function getTilePosition(i)
@@ -191,46 +201,88 @@ function indicateBuff(t)
 end
 
 function love.draw()
-    local area = 1
+    if state == "game" then
+        love.graphics.push()
+        love.graphics.scale(1.5, 1.5)
+        love.graphics.print("make your way out", 290, 75)
+        love.graphics.print("control with arrow keys", 290, 100)
+        love.graphics.print("restart level with r", 290, 125)
 
-    for i, t in ipairs(tiles) do
-        if ground[t].type == 'buff' and decay > 0 then
-            local r, g, b = indicateBuff(t)
-            love.graphics.print(string.format("%d, %d, %d", r, g, b), 25, 10)
-            love.graphics.setColor(r, g, b)
+        love.graphics.pop()
+
+        for i, t in ipairs(tiles) do
+            if ground[t].type == 'buff' and decay > 0 then
+                local r, g, b = indicateBuff(t)
+                love.graphics.setColor(r, g, b)
+            else
+                love.graphics.setColor(ground[t].r, ground[t].g, ground[t].b)
+            end
+            local x, y = getTilePosition(i)
+            love.graphics.rectangle("fill", x, y, tileSize, tileSize)
+
+            if inTile(x, y) then
+                player.tile = t
+            end
+        end
+
+        love.graphics.setColor(exit.r, exit.g, exit.b)
+        love.graphics.rectangle("fill", exit.x, exit.y, exit.w, exit.h)
+
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.print("exit", exit.x, exit.y)
+
+        love.graphics.setColor(player.r, player.g, player.b)
+        love.graphics.rectangle("fill", player.x, player.y, player.w, player.h)
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.rectangle("line", player.x, player.y, player.w, player.h)
+
+        local can_exit, msg = canExit()
+        if can_exit then
+            updateColor = false
+            if msg == 1 then
+                nextLevel(msg)
+            else
+                love.graphics.setColor(0, 0, 0)
+                love.graphics.print(string.format("%s", messages[msg]), origo.x, origo.y - 20)
+            end
         else
-            love.graphics.setColor(ground[t].r, ground[t].g, ground[t].b)
+            updateColor = true
         end
-        local x, y = getTilePosition(i)
-        love.graphics.rectangle("fill", x, y, tileSize, tileSize)
+    elseif state == "title" then
+        local left_align = 25
+        local top_align = 20
+        local spacing = 20
 
-        if inTile(x, y) then
-            player.tile = t
-        end
+        love.graphics.push()
+        love.graphics.scale(2, 2)
+        love.graphics.setColor(ground[2].r, ground[2].g, ground[2].b)
+        love.graphics.print("you are color", left_align, top_align)
+
+        top_align = top_align + spacing
+        love.graphics.setColor(ground[4].r, ground[4].g, ground[4].b)
+        love.graphics.print("all the colors of the world", left_align, top_align)
+
+        top_align = top_align + spacing
+        love.graphics.setColor(ground[6].r, ground[6].g, ground[6].b)
+        love.graphics.print("last you you where shot", left_align, top_align)
+
+        top_align = top_align + spacing
+        love.graphics.setColor(ground[8].r, ground[8].g, ground[8].b)
+        love.graphics.print("with a scary new weapon", left_align, top_align)
+
+        top_align = top_align + spacing
+        love.graphics.setColor(ground[12].r, ground[12].g, ground[12].b)
+        love.graphics.print("the colors they are a changing", left_align, top_align)
+
+        love.graphics.pop()
+        love.graphics.push()
+        love.graphics.scale(3, 3)
+        top_align = top_align + spacing + spacing
+        love.graphics.setColor(ground[14].r, ground[14].g, ground[14].b)
+        love.graphics.print("press enter to start", left_align, top_align)
+        love.graphics.pop()
+    elseif state == "gameover" then
+        love.graphics.print("woo, you passed all the levels", 25, 20)
+        love.graphics.print("press esc to quit", 25, 40)
     end
-
-    love.graphics.setColor(exit.r, exit.g, exit.b)
-    love.graphics.rectangle("fill", exit.x, exit.y, exit.w, exit.h)
-
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.print("exit", exit.x, exit.y)
-
-    love.graphics.setColor(player.r, player.g, player.b)
-    love.graphics.rectangle("fill", player.x, player.y, player.w, player.h)
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.rectangle("line", player.x, player.y, player.w, player.h)
-
-    local can_exit, msg = canExit()
-    if can_exit then
-        updateColor = false
-        if msg == 1 then
-            nextLevel(msg)
-        else
-            love.graphics.setColor(0, 0, 0)
-            love.graphics.print(string.format("%s", messages[msg]), width*0.20, height*0.2)
-        end
-    else
-        updateColor = true
-    end
-    love.graphics.print(decay, 10, 10)
 end

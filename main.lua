@@ -93,11 +93,13 @@ function love.update(dt)
             decay > 0 then
             colorSpeed = clamp(colorSpeed * 0.5, 0, 100)
             decay = decay - (dt * decaySpeed)
+            love.audio.play(resist_s)
         end
         if ground[player.tile].name == 'red-violet' and
             decay > 0 then
             speed = clamp(speed * 2, 0, 250)
             decay = decay - (dt * decaySpeed)
+            love.audio.play(speed_s)
         end
         if decay <= 0 then
             decay = decay - (dt * decaySpeed)
@@ -119,6 +121,11 @@ function love.load()
     game_font:setFilter("nearest", "nearest")
     font = love.graphics.newImageFont(game_font, "abcdefghijklmnopqrstuvwxyz,.!:;?1234567890 \"")
     love.graphics.setFont(font)
+    
+    no_exit_s = love.audio.newSource("assets/no_exit.wav", "static")
+    exit_s = love.audio.newSource("assets/exit.wav", "static")
+    speed_s = love.audio.newSource("assets/speed.wav", "static")
+    resist_s = love.audio.newSource("assets/resist.wav", "static")
 
     level = levels[l]
     level.init(pw, ph)
@@ -166,8 +173,10 @@ end
 function canExit()
     if inArea(exit) then
         if colorMatch() then
+            love.audio.play(exit_s)
             return true, 1
         else
+            love.audio.play(no_exit_s)
             return true, 2
         end
     end

@@ -213,7 +213,7 @@ function love.draw()
     love.graphics.rectangle("fill", exit.x, exit.y, exit.w, exit.h)
 
     love.graphics.setColor(0, 0, 0)
-    love.graphics.print("EXIT", exit.x, exit.y)
+    love.graphics.print("exit", exit.x, exit.y)
 
     love.graphics.setColor(player.r, player.g, player.b)
     love.graphics.rectangle("fill", player.x, player.y, player.w, player.h)

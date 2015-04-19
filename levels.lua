@@ -7,4 +7,6 @@ levels[1] = level1
 levels[2] = level2
 levels[3] = level3
 
+decaySpeed = 20
+
 return levels

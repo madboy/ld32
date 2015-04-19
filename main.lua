@@ -85,15 +85,15 @@ function love.update(dt)
         if ground[player.tile].name == 'white' and
             decay > 0 then
             colorSpeed = clamp(colorSpeed * 0.5, 0, 100)
-            decay = decay - 1
+            decay = decay - (dt * decaySpeed)
         end
         if ground[player.tile].name == 'red-violet' and
             decay > 0 then
             speed = clamp(speed * 2, 0, 250)
-            decay = decay - 1
+            decay = decay - (dt * decaySpeed)
         end
         if decay <= 0 then
-            decay = decay - 1
+            decay = decay - (dt * decaySpeed)
         end
         if decay < -400 then
             decay = 5

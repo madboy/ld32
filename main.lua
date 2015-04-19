@@ -37,7 +37,7 @@ paused = false
 l = 1
 
 local originalSpeed = {speed=0, colorSpeed=0}
-local messages = {"Level clear!", "Color attunement error!"}
+local messages = {"level clear!", "color attunement error!"}
 
 function love.keypressed(key)
     if key == "escape" then
@@ -108,6 +108,11 @@ function love.update(dt)
 end
 
 function love.load()
+    game_font = love.graphics.newImage("assets/font.png")
+    game_font:setFilter("nearest", "nearest")
+    font = love.graphics.newImageFont(game_font, "abcdefghijklmnopqrstuvwxyz,.!:;?1234567890 \"")
+    love.graphics.setFont(font)
+
     level = levels[3]
     level.init(pw, ph)
     originalSpeed.speed = speed
@@ -222,7 +227,7 @@ function love.draw()
             nextLevel(msg)
         else
             love.graphics.setColor(0, 0, 0)
-            love.graphics.print(string.format("%s", messages[msg]), width*0.13, height*0.2)
+            love.graphics.print(string.format("%s", messages[msg]), width*0.20, height*0.2)
         end
     else
         updateColor = true

@@ -2,21 +2,22 @@ require("levels")
 pw = 25
 ph = 25
 
-ground = {[1]={name='yellow', r=255, g=255, b=0},
-                [2]={name='yellow-orange', r=255, g=204, b=0},
-                [3]={name='orange', r=255, g=165, b=0},
-                [4]={name='orange-red', r=255, g=69, b=0},
-                [5]={name='red', r=255, g=0, b=0},
-                [6]={name='red-violet', r=244, g=62, b=113},
-                [7]={name='violet', r=102, g=51, b=153},
-                [8]={name='violet-blue', r=76, g=80, b=169},
-                [9]={name='blue', r=0, g=0, b=255},
-                [10]={name='blue-green', r=33, g=182, b=168},
-                [11]={name='green', r=0, g=255, b=0},
-                [12]={name='green-yellow', r=160, g=255, b=32},
-                [13]={name='black', r=0, g=0, b=0},
-                [14]={name='white', r=255, g=255, b=255},
-                [0]={name="exit", r=0, g=128, b=0}}
+ground = {[1]={name='yellow', type='normal', r=255, g=255, b=0},
+          [2]={name='yellow-orange', type='normal', r=255, g=204, b=0},
+          [3]={name='orange', type='normal', r=255, g=165, b=0},
+          [4]={name='orange-red', type='normal', r=255, g=69, b=0},
+          [5]={name='red', type='normal', r=255, g=0, b=0},
+          [6]={name='red-violet', type='buff', r=244, g=62, b=113},
+          [7]={name='violet', type='normal', r=102, g=51, b=153},
+          [8]={name='violet-blue', type='normal', r=76, g=80, b=169},
+          [9]={name='blue', type='normal', r=0, g=0, b=255},
+          [10]={name='blue-green', type='normal', r=33, g=182, b=168},
+          [11]={name='green', type='normal', r=0, g=255, b=0},
+          [12]={name='green-yellow', type='normal', r=160, g=255, b=32},
+          [13]={name='black', type='degen', r=0, g=0, b=0},
+          [14]={name='white', type='buff', r=255, g=255, b=255},
+          [15]={name='player', type='normal', r=255, g=255, b=255},
+          [0]={name="exit", type='normal', r=0, g=128, b=0}}
 tileSize = 0
 grid = 0
 origo = {}
@@ -94,7 +95,7 @@ function love.update(dt)
         if decay <= 0 then
             decay = decay - 1
         end
-        if decay < -500 then
+        if decay < -400 then
             decay = 5
         elseif decay < -250 then
             speed = originalSpeed.speed
@@ -107,7 +108,7 @@ function love.update(dt)
 end
 
 function love.load()
-    level = levels[2]
+    level = levels[3]
     level.init(pw, ph)
     originalSpeed.speed = speed
     originalSpeed.colorSpeed = colorSpeed
@@ -135,7 +136,7 @@ function inTile(x, y)
 end
 
 function withinLimit(c1, c2)
-    if math.abs(c2 - c1) < 25 then
+    if math.abs(c2 - c1) < 30 then
         return true
     end
     return false
@@ -175,13 +176,28 @@ function getTilePosition(i)
     return gridsx[xpos], gridsy[ypos]
 end
 
+function indicateBuff(t)
+    local r, g, b = ground[t].r, ground[t].g, ground[t].b
+    local fluctuation = 25
+    r = math.random(clamp(r-fluctuation, 0, 255), clamp(r+fluctuation, 0, 255))
+    g = math.random(clamp(g-fluctuation, 0, 255), clamp(g+fluctuation, 0, 255))
+    b = math.random(clamp(b-fluctuation, 0, 255), clamp(b+fluctuation, 0, 255))
+    return r, g, b
+end
+
 function love.draw()
     local area = 1
 
     for i, t in ipairs(tiles) do
-        love.graphics.setColor(ground[t].r, ground[t].g, ground[t].b)
+        if ground[t].type == 'buff' and decay > 0 then
+            local r, g, b = indicateBuff(t)
+            love.graphics.print(string.format("%d, %d, %d", r, g, b), 25, 10)
+            love.graphics.setColor(r, g, b)
+        else
+            love.graphics.setColor(ground[t].r, ground[t].g, ground[t].b)
+        end
         local x, y = getTilePosition(i)
-        love.graphics.rectangle("fill", x, y, 60, 60)
+        love.graphics.rectangle("fill", x, y, tileSize, tileSize)
 
         if inTile(x, y) then
             player.tile = t

@@ -27,7 +27,7 @@ function level2.init()
 
     start = {x=gridsx[3]+tileSize*0.5-pw*0.5, y=height-ph}
     exit = {x = gridsx[2], y = gridsy[1], w = tileSize, h = tileSize*0.5, r=ground[0].r, g=ground[0].g, b=ground[0].b}
-    player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, tile=14}
+    player = {x=start.x, y=start.y, w=pw, h=ph, r=255, g=255, b=255, tile=15}
     speed = 128
     colorSpeed = 45
     decay = 5

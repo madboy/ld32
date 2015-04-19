@@ -224,6 +224,7 @@ function love.draw()
         love.graphics.print("make your way out", 290, 75)
         love.graphics.print("control with arrow keys", 290, 100)
         love.graphics.print("restart level with r", 290, 125)
+        love.graphics.print("quit game with esc", 290, 150)
 
         love.graphics.pop()
 

@@ -104,7 +104,7 @@ function love.update(dt)
         if decay <= 0 then
             decay = decay - (dt * decaySpeed)
         end
-        if decay < -400 then
+        if decay < -300 then
             decay = 5
         elseif decay < -250 then
             speed = originalSpeed.speed
